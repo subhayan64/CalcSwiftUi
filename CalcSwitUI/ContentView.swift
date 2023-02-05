@@ -134,7 +134,7 @@ struct ContentView: View {
                 self.displayValue = self.value
             }
             
-            //TODO: add chain operation
+            
             if button != .equal {
                 self.value = "0"
             }
@@ -204,3 +204,8 @@ struct ContentView_Previews: PreviewProvider {
         ContentView().previewDevice(PreviewDevice(rawValue: "iPhone 13 Pro Max"))
     }
 }
+
+//TODO: add chain operation
+//TODO: fix equals multipress
+//TODO: handle long string
+//TODO: highlight selected operation
