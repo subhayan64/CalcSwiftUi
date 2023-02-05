@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 enum CalcButton: String {
     case one = "1"
     case two = "2"
@@ -48,8 +47,10 @@ enum Operation {
 struct ContentView: View {
     
     @State var value = "0"
-    @State var runningNumber = 0
+    @State var displayValue = "0"
+    @State var runningNumber: Double = -0
     @State var currentOperation: Operation = .none
+    
     
     let buttons: [[CalcButton]] = [
         [.clear, .negative, .percent, .divide],
@@ -68,7 +69,7 @@ struct ContentView: View {
                 
                 HStack {
                     Spacer()
-                    Text(value)
+                    Text(displayValue)
                         .bold()
                         .font(.system(size: 100))
                         .foregroundColor(.black)
@@ -80,7 +81,7 @@ struct ContentView: View {
                     HStack(spacing: 12) {
                         ForEach(row, id: \.self) { item in
                             Button(action: {
-                                self.keyTapped(button: item)
+                                self.keyTap(button: item)
                             }, label: {
                                 Text(item.rawValue)
                                     .font(.system(size: 32))
@@ -101,44 +102,55 @@ struct ContentView: View {
         }
     }
     
-    func keyTapped(button: CalcButton) {
+    func keyTap(button: CalcButton) {
         switch button {
-        case .add, .subtract, .mutliply, .divide, .equal:
+        case .add, .subtract, .mutliply, .divide, .percent, .equal:
             if button == .add {
                 self.currentOperation = .add
-                self.runningNumber = Int(self.value) ?? 0
+                self.runningNumber = Double(self.value) ?? 0
             }
             else if button == .subtract {
                 self.currentOperation = .subtract
-                self.runningNumber = Int(self.value) ?? 0
+                self.runningNumber = Double(self.value) ?? 0
             }
             else if button == .mutliply {
                 self.currentOperation = .multiply
-                self.runningNumber = Int(self.value) ?? 0
+                self.runningNumber = Double(self.value) ?? 0
             }
             else if button == .divide {
                 self.currentOperation = .divide
-                self.runningNumber = Int(self.value) ?? 0
+                self.runningNumber = Double(self.value) ?? 0
+            }
+            else if button == .percent{
+                self.runningNumber = Double(self.value) ?? 0
+                self.value = formatResult(val: self.runningNumber * 0.01)
+                self.displayValue = self.value
             }
             else if button == .equal {
-                let runningValue = self.runningNumber
-                let currentValue = Int(self.value) ?? 0
-                switch self.currentOperation {
-                case .add: self.value = "\(runningValue + currentValue)"
-                case .subtract: self.value = "\(runningValue - currentValue)"
-                case .multiply: self.value = "\(runningValue * currentValue)"
-                case .divide: self.value = "\(runningValue / currentValue)"
-                case .none:
-                    break
-                }
+                let runValue: Double = self.runningNumber
+                let currentValue = Double(self.value) ?? 0
+                
+                evaluateResult(op: self.currentOperation, runValue: runValue, currentValue: currentValue)
+                self.displayValue = self.value
             }
             
+            //TODO: add chain operation
             if button != .equal {
                 self.value = "0"
             }
+            break
         case .clear:
             self.value = "0"
-        case .decimal, .negative, .percent:
+            self.displayValue = self.value
+        case .negative:
+            self.value = formatResult(val: (-1 * (Double(self.value) ?? 0)))
+            self.displayValue = self.value
+            break
+        case .decimal:
+            if (!self.value.contains(".")){
+                self.value = "\(self.value)\(button.rawValue)"
+                self.displayValue = self.value
+            }
             break
         default:
             let number = button.rawValue
@@ -148,7 +160,31 @@ struct ContentView: View {
             else {
                 self.value = "\(self.value)\(number)"
             }
+            self.displayValue = self.value
         }
+    }
+    
+    
+    func evaluateResult(op: Operation, runValue: Double, currentValue: Double){
+        switch op {
+        case .add: self.value = formatResult(val: (runValue + currentValue))
+        case .subtract: self.value = formatResult(val: (runValue - currentValue))
+        case .multiply: self.value = formatResult(val: (runValue * currentValue))
+        case .divide: self.value = formatResult(val: (runValue / currentValue))
+        case .none:
+            break
+        }
+    }
+    
+    func formatResult(val : Double) -> String
+    {
+        print(val)
+        if(val.truncatingRemainder(dividingBy: 1) == 0)
+        {
+            return String(format: "%.0f", val)
+        }
+        
+        return String(format: "%.2f", val)
     }
     
     func buttonWidth(item: CalcButton) -> CGFloat {
@@ -161,7 +197,6 @@ struct ContentView: View {
     func buttonHeight() -> CGFloat {
         return (UIScreen.main.bounds.width - (5*12)) / 4
     }
-    
 }
 
 struct ContentView_Previews: PreviewProvider {
