@@ -216,7 +216,7 @@ struct ContentView: View {
             return String(format: "%.0f", val)
         }
         
-        return String(format: "%.3f", val)
+        return String(format: "%.2f", val)
     }
     
     func buttonWidth(item: CalcButton) -> CGFloat {
@@ -239,4 +239,5 @@ struct ContentView_Previews: PreviewProvider {
 
 //TODO: add chain operation
 //TODO: fix equals multipress
+//TODO: percent carry result
 //TODO: highlight selected operation
