@@ -68,6 +68,12 @@ struct ContentView: View {
     @State var currentOperation: Operation = .none
     
     
+    @State var orientation = UIDevice.current.orientation
+    
+    let orientationChanged = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+        .makeConnectable()
+        .autoconnect()
+    
     let buttons: [[CalcButton]] = [
         [.clear, .negative, .percent, .divide],
         [.seven, .eight, .nine, .mutliply],
@@ -76,49 +82,103 @@ struct ContentView: View {
         [.zero, .decimal, .equal],
     ]
     
+    let buttonsLandscape: [[CalcButton]] = [
+        [.seven, .eight, .nine, .divide, .negative, .percent, .clear],
+        [.four, .five, .six, .add, .subtract, .mutliply],
+        [.one, .two, .three, .zero, .decimal, .equal]
+    ]
+    
+    
     var body: some View {
         ZStack {
             Color.white.edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                Spacer()
-                    .frame(height: 200)
-                
-                HStack {
-                    Spacer()
-                    Text(displayValue)
-                        .bold()
-                        .font(.system(size: 88))
-                        .foregroundColor(.black)
-                        .minimumScaleFactor(0.01)
-                }
-                .padding()
-                
-                Spacer()
-                
-                ForEach(buttons, id: \.self) { row in
-                    HStack(spacing: 12) {
-                        ForEach(row, id: \.self) { item in
-                            Button(action: {
-                                self.keyTap(button: item)
-                            }, label: {
-                                Text(item.rawValue)
-                                    .font(.system(size: 32))
-                                    .frame(
-                                        width: self.buttonWidth(item: item),
-                                        height: self.buttonHeight()
-                                    )
-                                    .background(Color.white)
-                                    .foregroundColor(.black)
-                                
-                            }).border(Color.black, width: 2)
-                            
+            Group {
+                if orientation.isLandscape {
+                    //landscape
+                    VStack (alignment: .leading){
+                        Spacer()
+                        
+                        HStack {
+                            Spacer()
+                            Text(displayValue)
+                                .bold()
+                                .font(.system(size: 88))
+                                .foregroundColor(.black)
+                                .minimumScaleFactor(0.01)
+                        }
+                        .padding()
+                        
+                        ForEach(buttonsLandscape, id: \.self) { row in
+                            HStack(spacing: 12) {
+                                ForEach(row, id: \.self) { item in
+                                    Button(action: {
+                                        self.keyTap(button: item)
+                                    }, label: {
+                                        Text(item.rawValue)
+                                            .font(.system(size: 32))
+                                            .frame(
+                                                width:
+                                                    buttonHtLandscape()
+                                                ,
+                                                height: buttonHtLandscape()
+                                            )
+                                            .background(Color.white)
+                                            .foregroundColor(.black)
+                                        
+                                    }).border(Color.black, width: 2)
+                                    
+                                }
+                            }
+                            .padding(.bottom, 3)
                         }
                     }
-                    .padding(.bottom, 3)
+                } else {
+                    //prtrait
+                    VStack {
+                        Spacer().frame(height: getHeight())
+                        
+                        
+                        HStack (alignment: .bottom){
+                            Spacer()
+                            Text(displayValue)
+                                .bold()
+                                .font(.system(size: 88))
+                                .foregroundColor(.black)
+                                .minimumScaleFactor(0.01)
+                        }
+                        .padding()
+                        
+                        Spacer()
+                        
+                        ForEach(buttons, id: \.self) { row in
+                            HStack(spacing: 12) {
+                                ForEach(row, id: \.self) { item in
+                                    Button(action: {
+                                        self.keyTap(button: item)
+                                    }, label: {
+                                        Text(item.rawValue)
+                                            .font(.system(size: 32))
+                                            .frame(
+                                                width: self.buttonWidth(item: item),
+                                                height: self.buttonHeight()
+                                            )
+                                            .background(Color.white)
+                                            .foregroundColor(.black)
+                                        
+                                    }).border(Color.black, width: 2)
+                                    
+                                }
+                            }
+                            .padding(.bottom, 3)
+                        }
+                    }
                 }
+            }.onReceive(orientationChanged) { _ in
+                self.orientation = UIDevice.current.orientation
             }
+            
         }
+        
     }
     
     func keyTap(button: CalcButton) {
@@ -229,11 +289,23 @@ struct ContentView: View {
     func buttonHeight() -> CGFloat {
         return (UIScreen.main.bounds.width - (5*12)) / 4
     }
+    
+    func getHeight() -> CGFloat {
+        let ht = UIScreen.main.bounds.height
+        if(ht > 667){return (UIScreen.main.bounds.height * 0.2)}
+        return (UIScreen.main.bounds.height * 0.1)
+        
+    }
+    
+    func buttonHtLandscape() -> CGFloat {
+        return (UIScreen.main.bounds.height - (5*12)) / 4
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().previewDevice(PreviewDevice(rawValue: "iPhone 13 Pro Max"))
+        ContentView().previewDevice(PreviewDevice(rawValue: "iPhone 13 Pro Max")).previewInterfaceOrientation(.portrait)
     }
 }
 
