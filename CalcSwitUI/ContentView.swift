@@ -44,11 +44,27 @@ enum Operation {
     case add, subtract, multiply, divide, none
 }
 
+extension Formatter {
+    static let scientific: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .scientific
+        formatter.positiveFormat = "0.###E+0"
+        formatter.exponentSymbol = "e"
+        return formatter
+    }()
+}
+
+extension Numeric {
+    var scientificFormatted: String {
+        return Formatter.scientific.string(for: self) ?? ""
+    }
+}
+
 struct ContentView: View {
     
     @State var value = "0"
     @State var displayValue = "0"
-    @State var runningNumber: Double = -0
+    @State var runningNumber: Double = 0
     @State var currentOperation: Operation = .none
     
     
@@ -66,16 +82,19 @@ struct ContentView: View {
             
             VStack {
                 Spacer()
+                    .frame(height: 200)
                 
                 HStack {
                     Spacer()
                     Text(displayValue)
                         .bold()
-                        .font(.system(size: 100))
+                        .font(.system(size: 88))
                         .foregroundColor(.black)
+                        .minimumScaleFactor(0.01)
                 }
                 .padding()
                 
+                Spacer()
                 
                 ForEach(buttons, id: \.self) { row in
                     HStack(spacing: 12) {
@@ -124,14 +143,14 @@ struct ContentView: View {
             else if button == .percent{
                 self.runningNumber = Double(self.value) ?? 0
                 self.value = formatResult(val: self.runningNumber * 0.01)
-                self.displayValue = self.value
+                formatDisplay(val: self.value)
             }
             else if button == .equal {
                 let runValue: Double = self.runningNumber
                 let currentValue = Double(self.value) ?? 0
                 
                 evaluateResult(op: self.currentOperation, runValue: runValue, currentValue: currentValue)
-                self.displayValue = self.value
+                formatDisplay(val: self.value)
             }
             
             
@@ -141,15 +160,15 @@ struct ContentView: View {
             break
         case .clear:
             self.value = "0"
-            self.displayValue = self.value
+            formatDisplay(val: self.value)
         case .negative:
             self.value = formatResult(val: (-1 * (Double(self.value) ?? 0)))
-            self.displayValue = self.value
+            formatDisplay(val: self.value)
             break
         case .decimal:
             if (!self.value.contains(".")){
                 self.value = "\(self.value)\(button.rawValue)"
-                self.displayValue = self.value
+                formatDisplay(val: self.value)
             }
             break
         default:
@@ -160,7 +179,8 @@ struct ContentView: View {
             else {
                 self.value = "\(self.value)\(number)"
             }
-            self.displayValue = self.value
+            formatDisplay(val: self.value)
+            
         }
     }
     
@@ -176,6 +196,18 @@ struct ContentView: View {
         }
     }
     
+    func formatDisplay (val: String){
+        
+        if(val.count > 10){
+            let number = Double(val) ?? 0
+            
+            self.displayValue = number.scientificFormatted
+        }
+        else{
+            self.displayValue = val
+        }
+    }
+    
     func formatResult(val : Double) -> String
     {
         print(val)
@@ -184,7 +216,7 @@ struct ContentView: View {
             return String(format: "%.0f", val)
         }
         
-        return String(format: "%.2f", val)
+        return String(format: "%.3f", val)
     }
     
     func buttonWidth(item: CalcButton) -> CGFloat {
@@ -207,5 +239,4 @@ struct ContentView_Previews: PreviewProvider {
 
 //TODO: add chain operation
 //TODO: fix equals multipress
-//TODO: handle long string
 //TODO: highlight selected operation
