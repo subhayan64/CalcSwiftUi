@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C45207152992DB3C00435659 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4944BA6298EF3F90016B290 /* ContentView.swift */; };
 		C4944BA5298EF3F90016B290 /* CalcSwitUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4944BA4298EF3F90016B290 /* CalcSwitUIApp.swift */; };
 		C4944BA7298EF3F90016B290 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4944BA6298EF3F90016B290 /* ContentView.swift */; };
 		C4944BA9298EF3FA0016B290 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4944BA8298EF3FA0016B290 /* Assets.xcassets */; };
@@ -268,6 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C45207152992DB3C00435659 /* ContentView.swift in Sources */,
 				C4944BB6298EF3FB0016B290 /* CalcSwitUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
