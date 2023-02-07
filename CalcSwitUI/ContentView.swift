@@ -313,3 +313,4 @@ struct ContentView_Previews: PreviewProvider {
 //TODO: fix equals multipress
 //TODO: percent carry result
 //TODO: highlight selected operation
+//TODO: fix double operation
